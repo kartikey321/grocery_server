@@ -207,6 +207,30 @@ class MongoHelper {
     );
   }
 
+  static Future<Response> removeItemFromCart(
+      String email, String itemName) async {
+    var userCollection = db!.collection('users');
+    final query = mongo.where.eq('email', email);
+    var updateBuilder = mongo.modify;
+
+    updateBuilder.pull('cart.items', {
+      'name': itemName
+    }); // replace 'name' with the actual field name in your item schema
+    updateBuilder.set('cart.updateAt', DateTime.now().toIso8601String());
+
+    var res = await userCollection.update(query, updateBuilder);
+
+    print(res);
+
+    print('Remove operation was successful');
+    return Response(
+      body: getReturnMap(
+        success: true,
+        message: 'Remove operation was successful',
+      ),
+    );
+  }
+
   static Future<Response> getCheapestItem(String groceryName) async {
     var storeCollection = db!.collection('stores');
     var pipeline = [
